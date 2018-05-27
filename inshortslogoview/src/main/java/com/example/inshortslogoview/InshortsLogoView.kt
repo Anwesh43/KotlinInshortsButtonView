@@ -170,6 +170,7 @@ class InshortsLogoView (ctx : Context) : View(ctx) {
             for (i in 2..8) {
                 addGridCircle(i)
             }
+            curr = LinkedBlock(cbs)
         }
 
         fun draw(canvas : Canvas, paint : Paint) {
@@ -187,6 +188,29 @@ class InshortsLogoView (ctx : Context) : View(ctx) {
 
         fun startUpdating(startcb : () -> Unit) {
             curr?.startUpdating(startcb)
+        }
+    }
+
+    data class Renderer(var view : InshortsLogoView) {
+
+        private val animator : Animator = Animator(view)
+
+        private val inShortsLogo : InshortsLogo = InshortsLogo(0)
+
+        fun render(canvas : Canvas, paint : Paint) {
+            canvas.drawColor(Color.parseColor("#212121"))
+            inShortsLogo.draw(canvas, paint)
+            animator.animate {
+                inShortsLogo.update {
+                    animator.stop()
+                }
+            }
+        }
+
+        fun handleTap() {
+            inShortsLogo.startUpdating {
+                animator.start()
+            }
         }
     }
 }
