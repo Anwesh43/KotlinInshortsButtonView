@@ -69,6 +69,7 @@ class InshortsLogoView (ctx : Context) : View(ctx) {
 
         fun animate(updatecb : () -> Unit) {
             if (animated) {
+                updatecb()
                 try {
                     Thread.sleep(50)
                     view.invalidate()
@@ -125,6 +126,7 @@ class InshortsLogoView (ctx : Context) : View(ctx) {
         }
 
         fun draw(canvas : Canvas, paint : Paint) {
+            prev?.draw(canvas, paint)
             cb(canvas, paint, state.scale)
         }
 
@@ -156,7 +158,7 @@ class InshortsLogoView (ctx : Context) : View(ctx) {
                 val x : Float = -canvas.getSize()/3 + 1.5f * gap
                 val y : Float = -canvas.getSize()/3 + 1.5f * gap
                 val r : Float = (gap * fl)/2
-                canvas.drawRoundRect(RectF(x - r  , y - r, x+ 3 * r, y + r), r, r, paint)
+                canvas.drawRoundRect(RectF(x - r  , y - r, x+ 5 * r, y + r), r, r, paint)
             }
 
             fun addGridCircle(i : Int) {
@@ -165,8 +167,8 @@ class InshortsLogoView (ctx : Context) : View(ctx) {
                     val gap : Float = (2 * canvas.getSize()/21)
                     val x : Float = -canvas.getSize()/3 + 1.5f * gap
                     val y : Float = -canvas.getSize()/3 + 1.5f * gap
-                    val r : Float = (gap * fl)/2
-                    canvas.drawCircle(x + 2 * r * (i%3), y + 2 * r * ((i/3).toInt()), r, paint)
+                    val r : Float = (gap)/2
+                    canvas.drawCircle(x + 2 * gap * (i%3), y + 2 * gap * ((i/3)), r * fl, paint)
                 }
             }
 
@@ -177,7 +179,9 @@ class InshortsLogoView (ctx : Context) : View(ctx) {
         }
 
         fun draw(canvas : Canvas, paint : Paint) {
-            curr?.draw(canvas, paint)
+            canvas.drawInCenter {
+                curr?.draw(canvas, paint)
+            }
         }
 
         fun update(stopcb : (Float) -> Unit) {
