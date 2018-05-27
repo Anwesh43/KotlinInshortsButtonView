@@ -72,5 +72,50 @@ class InshortsLogoView (ctx : Context) : View(ctx) {
             }
         }
     }
+
+    data class LinkedBlock (var cbs : ArrayList<(Canvas, Paint, Float) -> Unit>, val cb : (Canvas, Paint, Float) -> Unit = cbs[0]) {
+
+        var next : LinkedBlock? = null
+
+        var prev : LinkedBlock? = null
+
+        private val state : State = State()
+
+        init {
+            cbs.removeAt(0)
+            addNeighbor(cbs)
+        }
+
+        fun addNeighbor(cbs : ArrayList<(Canvas, Paint, Float) -> Unit>) {
+            if (cbs.size > 0) {
+                next = LinkedBlock(cbs)
+                next?.prev = this
+            }
+        }
+
+        fun getNext(dir: Int, cb : () -> Unit) : LinkedBlock {
+            var curr : LinkedBlock? = this.prev
+            if (dir == 1) {
+                curr = this.next
+            }
+            if (curr != null) {
+                return curr
+            }
+            cb()
+            return this
+        }
+
+        fun draw(canvas : Canvas, paint : Paint) {
+            cb(canvas, paint, state.scale)
+        }
+
+        fun update(stopcb : (Float) -> Unit) {
+            state.update(stopcb)
+        }
+
+        fun startUpdating(startcb : () -> Unit) {
+            state.startUpdating(startcb)
+        }
+    }
 }
 
