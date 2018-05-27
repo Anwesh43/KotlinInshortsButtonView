@@ -9,6 +9,22 @@ import android.graphics.*
 import android.view.View
 import android.view.MotionEvent
 
+fun Canvas.getSize() : Float {
+    val size = Math.min(width, height).toFloat()
+    return size
+}
+
+fun Canvas.getCenter() : PointF {
+    return PointF(width.toFloat() * 0.5f, height * 0.5f)
+}
+
+fun Canvas.drawInCenter(cb : () -> Unit) {
+    save()
+    translate(getCenter().x, getCenter().y)
+    cb()
+    restore()
+}
+
 class InshortsLogoView (ctx : Context) : View(ctx) {
 
     private val paint : Paint = Paint(Paint.ANTI_ALIAS_FLAG)
@@ -115,6 +131,62 @@ class InshortsLogoView (ctx : Context) : View(ctx) {
 
         fun startUpdating(startcb : () -> Unit) {
             state.startUpdating(startcb)
+        }
+    }
+
+    data class InshortsLogo (var i : Int) {
+
+        var curr : LinkedBlock? = null
+
+        var dir : Int = 1
+
+        init {
+            val cbs : ArrayList<(Canvas, Paint, Float) -> Unit> = ArrayList()
+            cbs.add {canvas, paint, fl ->
+                paint.color = Color.parseColor("#f44336")
+                val size : Float = canvas.getSize() * fl
+                canvas.drawRoundRect(RectF(-size/3, -size/3, size/3, size/3), size/10, size/10, paint)
+            }
+            cbs.add {canvas, paint, fl ->
+                paint.color = Color.WHITE
+                val gap : Float = (2 * canvas.getSize()/21)
+                val x : Float = -canvas.getSize()/3 + 1.5f * gap
+                val y : Float = -canvas.getSize()/3 + 1.5f * gap
+                val r : Float = (gap * fl)/2
+                canvas.drawRoundRect(RectF(x - r  , y - r, x+ 3 * r, y + r), r, r, paint)
+            }
+
+            fun addGridCircle(i : Int) {
+                cbs.add {canvas, paint, fl ->
+                    paint.color = Color.WHITE
+                    val gap : Float = (2 * canvas.getSize()/21)
+                    val x : Float = -canvas.getSize()/3 + 1.5f * gap
+                    val y : Float = -canvas.getSize()/3 + 1.5f * gap
+                    val r : Float = (gap * fl)/2
+                    canvas.drawCircle(x + 2 * r * (i%3), y + 2 * r * ((i/3).toInt()), r, paint)
+                }
+            }
+
+            for (i in 2..8) {
+                addGridCircle(i)
+            }
+        }
+
+        fun draw(canvas : Canvas, paint : Paint) {
+            curr?.draw(canvas, paint)
+        }
+
+        fun update(stopcb : (Float) -> Unit) {
+            curr?.update {
+                curr = curr?.getNext(dir) {
+                    dir *= -1
+                }
+                stopcb(it)
+            }
+        }
+
+        fun startUpdating(startcb : () -> Unit) {
+            curr?.startUpdating(startcb)
         }
     }
 }
