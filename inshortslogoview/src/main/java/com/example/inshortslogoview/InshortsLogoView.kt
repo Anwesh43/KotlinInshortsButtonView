@@ -4,6 +4,7 @@ package com.example.inshortslogoview
  * Created by anweshmishra on 28/05/18.
  */
 
+import android.app.Activity
 import android.content.Context
 import android.graphics.*
 import android.view.View
@@ -213,6 +214,15 @@ class InshortsLogoView (ctx : Context) : View(ctx) {
             inShortsLogo.startUpdating {
                 animator.start()
             }
+        }
+    }
+
+    companion object {
+
+        fun create(activity : Activity) : InshortsLogoView {
+            val view : InshortsLogoView = InshortsLogoView(activity)
+            activity.setContentView(view)
+            return view
         }
     }
 }
