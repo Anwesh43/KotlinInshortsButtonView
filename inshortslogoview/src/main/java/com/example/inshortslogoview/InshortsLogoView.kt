@@ -172,8 +172,10 @@ class InshortsLogoView (ctx : Context) : View(ctx) {
                 }
             }
 
-            for (i in 2..8) {
-                addGridCircle(i)
+            for (i in 1..3) {
+                for (j in 1..i) {
+                    addGridCircle(((i - 1) * 3) + (3 - j))
+                }
             }
             curr = LinkedBlock(cbs)
         }
